@@ -1,0 +1,42 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #1f2933;
+  margin: 24px;
+  font-size: 12px;
+}
+
+.report-header h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #102a43;
+}
+
+.report-header .generated-at {
+  margin: 0 0 16px;
+  color: #627d98;
+  font-size: 11px;
+}
+
+table.report-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.report-table thead th {
+  background-color: #102a43;
+  color: #ffffff;
+  text-align: left;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+table.report-table tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #d9e2ec;
+}
+
+table.report-table tbody tr:nth-child(even) {
+  background-color: #f0f4f8;
+}

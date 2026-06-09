@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>{{TituloRelatorio}}</title>
+  <style>{{Css}}</style>
+</head>
+<body>
+  <header class="report-header">
+    <h1>{{TituloRelatorio}}</h1>
+    <p class="generated-at">Gerado em: {{DataGeracao}}</p>
+  </header>
+
+  <table class="report-table">
+    <thead>
+      <tr>
+        {{Colunas}}
+      </tr>
+    </thead>
+    <tbody>
+      {{Linhas}}
+    </tbody>
+  </table>
+</body>
+</html>

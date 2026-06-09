@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GeradorRelatorio.API/GeradorRelatorio.API.csproj" />
+  <Project Path="GeradorRelatorio.Application/GeradorRelatorio.Application.csproj" />
+  <Project Path="GeradorRelatorio.Domain/GeradorRelatorio.Domain.csproj" />
+  <Project Path="GeradorRelatorio.Infrastructure/GeradorRelatorio.Infrastructure.csproj" />
+</Solution>
