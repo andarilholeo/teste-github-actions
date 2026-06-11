@@ -1,22 +1,16 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Npgsql;
+using GeradorRelatorio.Application.Common;
 using GeradorRelatorio.Application.Dtos;
-using GeradorRelatorio.Application.Exceptions;
 using GeradorRelatorio.Application.Interfaces;
 using GeradorRelatorio.Application.Reporting;
 using GeradorRelatorio.Domain.Enums;
 
 namespace GeradorRelatorio.Infrastructure.Catalog;
 
-/// <summary>
-/// Cataloga, via Npgsql direto, as tabelas/views do schema <c>public</c> e as
-/// colunas de uma tabela escolhida. O schema é constante do backend (não vem do
-/// request) e nomes de tabela são parametrizados — sem superfície de injeção.
-/// </summary>
 public sealed class NpgsqlDataSourceCatalog : IDataSourceCatalog
 {
-    // Tabelas + views/matviews do public, excluindo a tabela de configuração e
-    // a tabela de migração do EF.
     private const string ListSql = """
         SELECT n.nspname AS schema, c.relname AS name, c.relkind AS kind
         FROM pg_class c
@@ -35,14 +29,16 @@ public sealed class NpgsqlDataSourceCatalog : IDataSourceCatalog
         """;
 
     private readonly string _connectionString;
+    private readonly ILogger<NpgsqlDataSourceCatalog> _logger;
 
-    public NpgsqlDataSourceCatalog(IConfiguration configuration)
+    public NpgsqlDataSourceCatalog(IConfiguration configuration, ILogger<NpgsqlDataSourceCatalog> logger)
     {
         _connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection não configurada.");
+        _logger = logger;
     }
 
-    public async Task<IReadOnlyList<DataSourceDto>> ListAsync(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<DataSourceDto>>> ListAsync(CancellationToken cancellationToken)
     {
         var result = new List<DataSourceDto>();
 
@@ -73,14 +69,14 @@ public sealed class NpgsqlDataSourceCatalog : IDataSourceCatalog
         }
         catch (NpgsqlException ex)
         {
-            throw new ReportQueryExecutionException(
-                "Erro ao listar as fontes de dados disponíveis.", ex);
+            _logger.LogError(ex, "Erro ao listar as fontes de dados disponíveis.");
+            return Error.External("Erro ao listar as fontes de dados disponíveis.");
         }
 
         return result;
     }
 
-    public async Task<IReadOnlyList<DataSourceColumnDto>> GetColumnsAsync(
+    public async Task<Result<IReadOnlyList<DataSourceColumnDto>>> GetColumnsAsync(
         string fonteDados,
         CancellationToken cancellationToken)
     {
@@ -88,7 +84,8 @@ public sealed class NpgsqlDataSourceCatalog : IDataSourceCatalog
 
         if (schema != DataSourceValidator.AllowedSchema || !DataSourceValidator.IsValidColumn(table))
         {
-            throw new InvalidDataSourceException(fonteDados);
+            return Error.Validation(
+                $"A fonte de dados '{fonteDados}' não é permitida ou não existe. Apenas tabelas/views do schema 'public' são aceitas.");
         }
 
         var result = new List<DataSourceColumnDto>();
@@ -117,8 +114,8 @@ public sealed class NpgsqlDataSourceCatalog : IDataSourceCatalog
         }
         catch (NpgsqlException ex)
         {
-            throw new ReportQueryExecutionException(
-                $"Erro ao listar as colunas da fonte '{fonteDados}'.", ex);
+            _logger.LogError(ex, "Erro ao listar as colunas da fonte '{FonteDados}'.", fonteDados);
+            return Error.External($"Erro ao listar as colunas da fonte '{fonteDados}'.");
         }
 
         return result;
