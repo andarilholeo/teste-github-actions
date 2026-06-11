@@ -16,6 +16,7 @@ public static class ResultExtensions
         var status = error.Type switch
         {
             ErrorType.Validation => StatusCodes.Status422UnprocessableEntity,
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.External => StatusCodes.Status502BadGateway,
             _ => StatusCodes.Status500InternalServerError
         };

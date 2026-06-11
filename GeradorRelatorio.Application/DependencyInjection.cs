@@ -9,6 +9,11 @@ public static class DependencyInjection
     {
         services.AddScoped<ListDataSourcesUseCase>();
         services.AddScoped<ListDataSourceColumnsUseCase>();
+        services.AddScoped<GenerateReportSqlUseCase>();
+        services.AddScoped<GenerateReportPreviewUseCase>();
+        services.AddScoped<SaveReportTemplateUseCase>();
+        services.AddScoped<GetReportTemplateUseCase>();
+        services.AddScoped<ListReportTemplatesUseCase>();
 
         return services;
     }
